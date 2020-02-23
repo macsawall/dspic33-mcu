@@ -1,6 +1,4 @@
 # dspic33-mcu
 Assorted implemented features for the dspic33ev256gm102 microcontroller.
 
-Edits 
-More edits
-and more edits
+Removed edits
