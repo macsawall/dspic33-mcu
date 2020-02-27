@@ -1,5 +1,12 @@
 /*
-Implementation of the UART1 module on the dspic33ev256gm102;
+-Implementation of the UART1 module on the dspic33ev256gm102;
+-main() initializes UART1 and then waits to receive a byte via UART1;
+ Once a byte is received, UART1 transmits (echoes) the byte back to where
+ it came from (PuTTY or wherever).
+-Interrupts are implemented for RX and TX. The RX ISR is entered when
+ U1RXREG receives a new byte from the receive shift register. The opposite
+ is true for the TX ISR.
+ 
 UART1 RX = pin RB15
 UART1 TX = pin RB10
 */
@@ -12,34 +19,36 @@ UART1 TX = pin RB10
 #pragma config FWDTEN = OFF
 
 //#define BIT(x,n) (((x) >> (n)) & 1)
-volatile unsigned char SPI_received_byte; //garbage variable
-volatile unsigned char UART_received_byte;
-volatile unsigned char new_byte_received;
+volatile unsigned char spi_received_byte; //garbage variable
+volatile unsigned char uart_received_byte;
+volatile unsigned char new_byte_received; //flag
+volatile unsigned char tx_string[2]; //2 character string for compatability with uart_tx function. Last charcter is '\0'
 
 
-void UART_init(void); //initializes UART1
-void UART_TX(volatile unsigned char string[]); //write (transmit) strings to putty 
-void UARTtoLCD(volatile unsigned char key); //echoes single characters back to SPI LCD
+void uart_init(void); //initializes UART1
+void uart_tx(volatile unsigned char string[]); //write (transmit) strings to putty 
+void uart_to_lcd(volatile unsigned char key); //echoes single characters back to SPI LCD
 void __attribute__((__interrupt__, __auto_psv__)) _U1RXInterrupt(void);
 void __attribute__((__interrupt__, __auto_psv__)) _U1TXInterrupt(void);
 
 
 int main(void)
 {
-  UART_init();
+  uart_init();
   
   while(1)
   {
+	//wait to receive byte, then echo it back and clear the flag so we don't continuously transmit the same data
     while(!new_byte_received);
-    while(U1STAbits.UTXBF); //TX busy flag 1=full
-    U1TXREG = UART_received_byte;
-    new_byte_received = 0;
+	tx_string[0] = uart_received_byte;
+	uart_tx(tx_string);
+    new_byte_received = 0; 
   }
   
   return 0;
 }
 
-void UART_init(void)
+void uart_init(void)
 {
   RPINR18bits.U1RXR = 0b0101111; //UART1 RX set to RPI47 pin RB15
   RPOR4bits.RP42R = 0b000001; //UART1 TX set to RP42 pin RB10
@@ -62,10 +71,10 @@ void UART_init(void)
   IPC3bits.U1TXIP = 0b001; //priority for UART1 TX
 }
 
-void UART_TX(volatile unsigned char string[])
+void uart_tx(volatile unsigned char string[])
 {
   int i = 0;
-  while(string[i] != 0) //loop though string until all characters written
+  while(string[i] != '\0') //loop though string until all characters written
   {
     while(U1STAbits.UTXBF); //TX busy flag 1=full
     U1TXREG = string[i];
@@ -73,7 +82,7 @@ void UART_TX(volatile unsigned char string[])
   }
 }
 
-void UARTtoLCD(volatile unsigned char key)
+void uart_to_lcd(volatile unsigned char key)
 {       
   if(key == 0x7F) //backspace key
   {
@@ -85,7 +94,7 @@ void UARTtoLCD(volatile unsigned char key)
     while(SPI1STATbits.SPITBF == 1);
     SPI1BUF = key;
     while(SPI1STATbits.SPIRBF == 0);
-    SPI_received_byte = SPI1BUF;
+    spi_received_byte = SPI1BUF;
     LATBbits.LATB5 = 1; //active low SS disabled
   }
 }
@@ -95,9 +104,9 @@ void __attribute__((__interrupt__, __auto_psv__)) _U1RXInterrupt(void)
   IFS0bits.U1RXIF = 0; //IFS0<11>IEC0<11>IPC2<14:12>
   //while(U1STAbits.URXDA);
   new_byte_received = 1;
-  UART_received_byte = U1RXREG; //store the received byte
-  //UART_TX(UART_received_byte); //echo the received byte back
-  //UARTtoLCD(UART_received_byte); //echo the received byte to SPI LCD
+  uart_received_byte = U1RXREG; //store the received byte
+  //uart_tx(uart_received_byte); //echo the received byte back
+  //uart_to_lcd(uart_received_byte); //echo the received byte to SPI LCD
 }
 
 void __attribute__((__interrupt__, __auto_psv__)) _U1TXInterrupt(void)

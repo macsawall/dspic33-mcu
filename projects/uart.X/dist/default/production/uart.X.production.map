@@ -60,8 +60,8 @@ xc16-ld 1.36 (B)
 section                    address   length (PC units)   length (bytes) (dec)
 -------                    -------   -----------------   --------------------
 .text                        0x200               0x146           0x1e9  (489)
-.text                        0x346                0xd2           0x13b  (315)
-.dinit                       0x418                 0x8             0xc  (12)
+.text                        0x346                0xcc           0x132  (306)
+.dinit                       0x412                 0xe            0x15  (21)
 
                  Total "program" memory used (bytes):          0x330  (816) <1%
 
@@ -71,8 +71,9 @@ section                    address   length (PC units)   length (bytes) (dec)
 section                    address      alignment gaps    total length  (dec)
 -------                    -------      --------------    -------------------
 .nbss                       0x1000                   0             0x4  (4)
+.bss                        0x1004                   0             0x2  (2)
 
-                 Total "data" memory used (bytes):            0x4  (4) <1%
+                 Total "data" memory used (bytes):            0x6  (6) <1%
 
 
 Dynamic Memory Usage
@@ -80,22 +81,24 @@ Dynamic Memory Usage
 region                     address                      maximum length  (dec)
 ------                     -------                      ---------------------
 heap                             0                                   0  (0)
-stack                       0x1004                              0x3ffc  (16380)
+stack                       0x1006                              0x3ffa  (16378)
 
-                 Maximum dynamic memory (bytes):         0x3ffc  (16380)
+                 Maximum dynamic memory (bytes):         0x3ffa  (16378)
 
 
 External Symbols in Data Memory (by address):
 
-                    0x1000                  _SPI_received_byte
-                    0x1001                  _UART_received_byte
+                    0x1000                  _spi_received_byte
+                    0x1001                  _uart_received_byte
                     0x1002                  _new_byte_received
+                    0x1004                  _tx_string
 
 External Symbols in Data Memory (by name):
 
-                    0x1000                  _SPI_received_byte
-                    0x1001                  _UART_received_byte
                     0x1002                  _new_byte_received
+                    0x1000                  _spi_received_byte
+                    0x1004                  _tx_string
+                    0x1001                  _uart_received_byte
 
 External Symbols in Program Memory (by address):
 
@@ -107,15 +110,12 @@ External Symbols in Program Memory (by address):
                   0x000322                  __U1TXInterrupt
                   0x000340                  __DefaultInterrupt
                   0x000346                  _main
-                  0x00036a                  _UART_init
-                  0x0003b0                  _UART_TX
-                  0x0003e4                  _UARTtoLCD
+                  0x000364                  _uart_init
+                  0x0003aa                  _uart_tx
+                  0x0003de                  _uart_to_lcd
 
 External Symbols in Program Memory (by name):
 
-                  0x0003b0                  _UART_TX
-                  0x00036a                  _UART_init
-                  0x0003e4                  _UARTtoLCD
                   0x000340                  __DefaultInterrupt
                   0x0002fa                  __U1RXInterrupt
                   0x000322                  __U1TXInterrupt
@@ -124,6 +124,9 @@ External Symbols in Program Memory (by name):
                   0x00023c                  __psv_init
                   0x000200                  __resetPRI
                   0x000346                  _main
+                  0x000364                  _uart_init
+                  0x0003de                  _uart_to_lcd
+                  0x0003aa                  _uart_tx
 
 Memory Configuration
 
@@ -255,14 +258,14 @@ __FALTREG
 .comment
  *(.comment)
 
-.debug_info       0x000000       0x1513
+.debug_info       0x000000       0x1557
  *(.debug_info)
- .debug_info      0x000000       0x1513 build/default/production/main.o
+ .debug_info      0x000000       0x1557 build/default/production/main.o
  *(.gnu.linkonce.wi.*)
 
-.debug_abbrev     0x000000        0x13c
+.debug_abbrev     0x000000        0x14e
  *(.debug_abbrev)
- .debug_abbrev    0x000000        0x13c build/default/production/main.o
+ .debug_abbrev    0x000000        0x14e build/default/production/main.o
 
 .debug_line       0x000000        0x12d
  *(.debug_line)
@@ -272,9 +275,9 @@ __FALTREG
  *(.debug_frame)
  .debug_frame     0x000000         0xd2 build/default/production/main.o
 
-.debug_str        0x000000         0xa6
+.debug_str        0x000000         0xb0
  *(.debug_str)
- .debug_str       0x000000         0xa6 build/default/production/main.o
+ .debug_str       0x000000         0xb0 build/default/production/main.o
 
 .debug_loc
  *(.debug_loc)
@@ -283,10 +286,10 @@ __FALTREG
  *(.debug_macinfo)
 
 .debug_pubnames
-                  0x000000         0xac
+                  0x000000         0xbc
  *(.debug_pubnames)
  .debug_pubnames
-                  0x000000         0xac build/default/production/main.o
+                  0x000000         0xbc build/default/production/main.o
 
 .debug_ranges
  *(.debug_ranges)
@@ -1627,9 +1630,13 @@ __c30_signature
 
 .nbss               0x1000          0x4
  .nbss              0x1000          0x4 build/default/production/main.o
-                    0x1000                  _SPI_received_byte
-                    0x1001                  _UART_received_byte
+                    0x1000                  _spi_received_byte
+                    0x1001                  _uart_received_byte
                     0x1002                  _new_byte_received
+
+.bss                0x1004          0x2
+ .bss               0x1004          0x2 build/default/production/main.o
+                    0x1004                  _tx_string
 
 .config_ICS       0x02aba8          0x2
  .config_ICS      0x02aba8          0x2 build/default/production/main.o
@@ -1648,12 +1655,12 @@ __c30_signature
  .ivt._U1TXInterrupt
                   0x00002c          0x2 build/default/production/main.o
 
-.text             0x000346         0xd2
- .text            0x000346         0xd2 build/default/production/main.o
+.text             0x000346         0xcc
+ .text            0x000346         0xcc build/default/production/main.o
                   0x000346                  _main
-                  0x00036a                  _UART_init
-                  0x0003b0                  _UART_TX
-                  0x0003e4                  _UARTtoLCD
+                  0x000364                  _uart_init
+                  0x0003aa                  _uart_tx
+                  0x0003de                  _uart_to_lcd
 
-.dinit            0x000418          0x8
- .dinit           0x000418          0x8 data_init
+.dinit            0x000412          0xe
+ .dinit           0x000412          0xe data_init
