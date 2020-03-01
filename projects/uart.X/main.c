@@ -31,17 +31,17 @@ void uart_to_lcd(volatile unsigned char key); //echoes single characters back to
 void __attribute__((__interrupt__, __auto_psv__)) _U1RXInterrupt(void);
 void __attribute__((__interrupt__, __auto_psv__)) _U1TXInterrupt(void);
 
-
 int main(void)
 {
   uart_init();
-  
+  uart_tx("Hello");
+
   while(1)
   {
-	//wait to receive byte, then echo it back and clear the flag so we don't continuously transmit the same data
+    //wait to receive byte, then echo it back and clear the flag so we don't continuously transmit the same data
     while(!new_byte_received);
-	tx_string[0] = uart_received_byte;
-	uart_tx(tx_string);
+    tx_string[0] = uart_received_byte;
+    uart_tx(tx_string);
     new_byte_received = 0; 
   }
   
@@ -105,8 +105,6 @@ void __attribute__((__interrupt__, __auto_psv__)) _U1RXInterrupt(void)
   //while(U1STAbits.URXDA);
   new_byte_received = 1;
   uart_received_byte = U1RXREG; //store the received byte
-  //uart_tx(uart_received_byte); //echo the received byte back
-  //uart_to_lcd(uart_received_byte); //echo the received byte to SPI LCD
 }
 
 void __attribute__((__interrupt__, __auto_psv__)) _U1TXInterrupt(void)

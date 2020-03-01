@@ -60,10 +60,11 @@ xc16-ld 1.36 (B)
 section                    address   length (PC units)   length (bytes) (dec)
 -------                    -------   -----------------   --------------------
 .text                        0x200               0x146           0x1e9  (489)
-.text                        0x346                0xcc           0x132  (306)
-.dinit                       0x412                 0xe            0x15  (21)
+.const                       0x346                 0x6             0x9  (9)
+.text                        0x34c                0xd0           0x138  (312)
+.dinit                       0x41c                 0xe            0x15  (21)
 
-                 Total "program" memory used (bytes):          0x330  (816) <1%
+                 Total "program" memory used (bytes):          0x33f  (831) <1%
 
 
 "data" Memory  [Origin = 0x1000, Length = 0x4000]
@@ -109,10 +110,10 @@ External Symbols in Program Memory (by address):
                   0x0002fa                  __U1RXInterrupt
                   0x000322                  __U1TXInterrupt
                   0x000340                  __DefaultInterrupt
-                  0x000346                  _main
-                  0x000364                  _uart_init
-                  0x0003aa                  _uart_tx
-                  0x0003de                  _uart_to_lcd
+                  0x00034c                  _main
+                  0x00036e                  _uart_init
+                  0x0003b4                  _uart_tx
+                  0x0003e8                  _uart_to_lcd
 
 External Symbols in Program Memory (by name):
 
@@ -123,10 +124,10 @@ External Symbols in Program Memory (by name):
                   0x000248                  __data_init_extended
                   0x00023c                  __psv_init
                   0x000200                  __resetPRI
-                  0x000346                  _main
-                  0x000364                  _uart_init
-                  0x0003de                  _uart_to_lcd
-                  0x0003aa                  _uart_tx
+                  0x00034c                  _main
+                  0x00036e                  _uart_init
+                  0x0003e8                  _uart_to_lcd
+                  0x0003b4                  _uart_tx
 
 Memory Configuration
 
@@ -267,9 +268,9 @@ __FALTREG
  *(.debug_abbrev)
  .debug_abbrev    0x000000        0x14e build/default/production/main.o
 
-.debug_line       0x000000        0x12d
+.debug_line       0x000000        0x12e
  *(.debug_line)
- .debug_line      0x000000        0x12d build/default/production/main.o
+ .debug_line      0x000000        0x12e build/default/production/main.o
 
 .debug_frame      0x000000         0xd2
  *(.debug_frame)
@@ -1655,12 +1656,15 @@ __c30_signature
  .ivt._U1TXInterrupt
                   0x00002c          0x2 build/default/production/main.o
 
-.text             0x000346         0xcc
- .text            0x000346         0xcc build/default/production/main.o
-                  0x000346                  _main
-                  0x000364                  _uart_init
-                  0x0003aa                  _uart_tx
-                  0x0003de                  _uart_to_lcd
+.const              0x8346          0x6 load address 0x000346  
+ .const             0x8346          0x6 build/default/production/main.o
 
-.dinit            0x000412          0xe
- .dinit           0x000412          0xe data_init
+.text             0x00034c         0xd0
+ .text            0x00034c         0xd0 build/default/production/main.o
+                  0x00034c                  _main
+                  0x00036e                  _uart_init
+                  0x0003b4                  _uart_tx
+                  0x0003e8                  _uart_to_lcd
+
+.dinit            0x00041c          0xe
+ .dinit           0x00041c          0xe data_init
