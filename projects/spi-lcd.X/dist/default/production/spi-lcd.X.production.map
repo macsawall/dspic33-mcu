@@ -61,10 +61,10 @@ section                    address   length (PC units)   length (bytes) (dec)
 -------                    -------   -----------------   --------------------
 .text                        0x200               0x100           0x180  (384)
 .const                       0x300                0x10            0x18  (24)
-.text                        0x310               0x18e           0x255  (597)
-.dinit                       0x49e                 0x8             0xc  (12)
+.text                        0x310               0x190           0x258  (600)
+.dinit                       0x4a0                 0x8             0xc  (12)
 
-                 Total "program" memory used (bytes):          0x3f9  (1017) <1%
+                 Total "program" memory used (bytes):          0x3fc  (1020) <1%
 
 
 "data" Memory  [Origin = 0x1000, Length = 0x4000]
@@ -102,25 +102,25 @@ External Symbols in Program Memory (by address):
                   0x000248                  __data_init_extended
                   0x0002fa                  __DefaultInterrupt
                   0x000310                  _main
-                  0x00034e                  _spiLCD_command
-                  0x0003c0                  _spiLCD_write
-                  0x000406                  _spiLCD_init
-                  0x000420                  _delay100ms
-                  0x000450                  _UARTtoLCD
+                  0x000350                  _spiLCD_command
+                  0x0003c2                  _spiLCD_write
+                  0x000408                  _spiLCD_init
+                  0x000422                  _delay100ms
+                  0x000452                  _UARTtoLCD
 
 External Symbols in Program Memory (by name):
 
-                  0x000450                  _UARTtoLCD
+                  0x000452                  _UARTtoLCD
                   0x0002fa                  __DefaultInterrupt
                   0x000248                  __data_init
                   0x000248                  __data_init_extended
                   0x00023c                  __psv_init
                   0x000200                  __resetPRI
-                  0x000420                  _delay100ms
+                  0x000422                  _delay100ms
                   0x000310                  _main
-                  0x00034e                  _spiLCD_command
-                  0x000406                  _spiLCD_init
-                  0x0003c0                  _spiLCD_write
+                  0x000350                  _spiLCD_command
+                  0x000408                  _spiLCD_init
+                  0x0003c2                  _spiLCD_write
 
 Memory Configuration
 
@@ -258,9 +258,9 @@ __FALTREG
  *(.debug_abbrev)
  .debug_abbrev    0x000000        0x13c build/default/production/main.o
 
-.debug_line       0x000000        0x139
+.debug_line       0x000000        0x13a
  *(.debug_line)
- .debug_line      0x000000        0x139 build/default/production/main.o
+ .debug_line      0x000000        0x13a build/default/production/main.o
 
 .debug_frame      0x000000         0xbc
  *(.debug_frame)
@@ -1633,14 +1633,14 @@ __c30_signature
 .const              0x8300         0x10 load address 0x000300  
  .const             0x8300         0x10 build/default/production/main.o
 
-.text             0x000310        0x18e
- .text            0x000310        0x18e build/default/production/main.o
+.text             0x000310        0x190
+ .text            0x000310        0x190 build/default/production/main.o
                   0x000310                  _main
-                  0x00034e                  _spiLCD_command
-                  0x0003c0                  _spiLCD_write
-                  0x000406                  _spiLCD_init
-                  0x000420                  _delay100ms
-                  0x000450                  _UARTtoLCD
+                  0x000350                  _spiLCD_command
+                  0x0003c2                  _spiLCD_write
+                  0x000408                  _spiLCD_init
+                  0x000422                  _delay100ms
+                  0x000452                  _UARTtoLCD
 
-.dinit            0x00049e          0x8
- .dinit           0x00049e          0x8 data_init
+.dinit            0x0004a0          0x8
+ .dinit           0x0004a0          0x8 data_init

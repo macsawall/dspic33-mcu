@@ -21,7 +21,7 @@ int main(void)
 {
   TRISBbits.TRISB6 = 0;
   LATBbits.LATB6 = 0;
-  //delay100ms(); //gives LCD time to boot up
+  delay100ms(); //gives LCD time to boot up
   spiLCD_init();
   spiLCD_command(0x51, 0); //clear
   spiLCD_command(0x46, 0); //cursor home (1st line)
