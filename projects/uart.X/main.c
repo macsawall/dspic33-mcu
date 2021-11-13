@@ -81,7 +81,7 @@ void uart_tx(volatile unsigned char string[])
     i++;
   }
 }
-
+/*
 void uart_to_lcd(volatile unsigned char key)
 {       
   if(key == 0x7F) //backspace key
@@ -98,7 +98,7 @@ void uart_to_lcd(volatile unsigned char key)
     LATBbits.LATB5 = 1; //active low SS disabled
   }
 }
-
+*/
 void __attribute__((__interrupt__, __auto_psv__)) _U1RXInterrupt(void)
 {
   IFS0bits.U1RXIF = 0; //IFS0<11>IEC0<11>IPC2<14:12>

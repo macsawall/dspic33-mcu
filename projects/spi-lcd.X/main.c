@@ -6,16 +6,14 @@
 #pragma config FWDTEN = OFF
 
 //#define BIT(x,n) (((x) >> (n)) & 1)
-volatile unsigned char SPI_received_byte; //garbage variable
+unsigned char spi_received_byte; //garbage variable
+unsigned int lcd_character_count; //counter that keeps track of the characters printed to the 20x4 LCD screen (counts from 0 to 79)
 
 void delay100ms(void);
 void spiLCD_init(void);
-void spiLCD_command(char, char);
-void spiLCD_write(volatile unsigned char string[]); //write strings to LCD
-void UARTtoLCD(volatile unsigned char key); //echoes single characters back to putty and LCD
-//void __attribute__((__interrupt__, __auto_psv__)) _U1RXInterrupt(void);
-//void __attribute__((__interrupt__, __auto_psv__)) _U1TXInterrupt(void);
-
+void spiLCD_char(unsigned char); //write characters to LCD
+void spiLCD_command(unsigned char, unsigned char);
+void spiLCD_string(unsigned char*); //write strings to LCD
 
 int main(void)
 {
@@ -26,13 +24,9 @@ int main(void)
   spiLCD_command(0x51, 0); //clear
   spiLCD_command(0x46, 0); //cursor home (1st line)
   spiLCD_command(0x53, 0x02); //set brightness
-  spiLCD_write("1st");
-  spiLCD_command(0x45, 0x40); //2nd line
-  spiLCD_write("2nd");
-  spiLCD_command(0x45, 0x14); //3rd line
-  spiLCD_write("3rd");
-  spiLCD_command(0x45, 0x54); //4th line
-  spiLCD_write("4th");
+  lcd_character_count = 0;
+  spiLCD_string("Mackenzie Lee Sawall");
+  
   while(1)
   {
       //
@@ -41,45 +35,84 @@ int main(void)
   return 0;
 }
 
-void spiLCD_command(char byte2, char byte3)
+void spiLCD_command(unsigned char command, unsigned char parameter)
 {
-  LATBbits.LATB5 = 0; //active low SS enabled
-  while(SPI1STATbits.SPITBF == 1);
-  SPI1BUF = 0xFE;
-  while(SPI1STATbits.SPIRBF == 0);
-  SPI_received_byte = SPI1BUF;
+  spiLCD_char(0xFE);
+  spiLCD_char(command);
   
-  while(SPI1STATbits.SPITBF == 1);
-  SPI1BUF = byte2;
-  while(SPI1STATbits.SPIRBF == 0);
-  SPI_received_byte = SPI1BUF;
-  //SPI1STATbits.SPIROV = 0;
-  
-  if (byte3 != 0)
+  if (parameter != 0) //byte3 is not needed on all LCD commands. Just use 0 if not needed
   {
-    while(SPI1STATbits.SPITBF == 1);
-    SPI1BUF = byte3;
-    while(SPI1STATbits.SPIRBF == 0);
-    SPI_received_byte = SPI1BUF;
-    //SPI1STATbits.SPIROV = 0;
-    LATBbits.LATB5 = 1; //active low SS disabled
+    spiLCD_char(parameter);
   }
   
-  LATBbits.LATB5 = 1; //active low SS disabled
+  if (command == 0x4E) //backspace command
+  {
+    if (lcd_character_count == 0)
+    {
+      lcd_character_count = 79;
+      spiLCD_command(0x45, 0x67); //end of 4th line
+    }
+    else if (lcd_character_count == 20)
+    {
+      lcd_character_count--;
+      spiLCD_command(0x45, 0x13); //end of 1st line
+    }    
+    else if (lcd_character_count == 40)
+    {
+      lcd_character_count--;
+      spiLCD_command(0x45, 0x53); //end of 2nd line
+    }     
+    else if (lcd_character_count == 60)
+    {
+      lcd_character_count--;
+      spiLCD_command(0x45, 0x27); //end of 3rd line
+    }        
+    else
+    {
+      lcd_character_count--;
+    }
+  }
 }
 
-void spiLCD_write(volatile unsigned char string[])
+void spiLCD_char(unsigned char byte)
 {
-  int i = 0;
+    LATBbits.LATB5 = 0; //active low SS enabled
+    while(SPI1STATbits.SPITBF == 1);
+    SPI1BUF = byte;
+    while(SPI1STATbits.SPIRBF == 0);
+    spi_received_byte = SPI1BUF;
+    LATBbits.LATB5 = 1; //active low SS disabled
+    
+	  lcd_character_count++;
+  
+    if(lcd_character_count == 20)
+    {
+      spiLCD_command(0x45, 0x40); //start of 2nd line
+    }
+    else if(lcd_character_count == 40)
+    {
+      spiLCD_command(0x45, 0x14); //start of 3rd line
+    }
+    else if(lcd_character_count == 60)
+    {
+      spiLCD_command(0x45, 0x54); //start of 4th line
+    }
+    else if(lcd_character_count == 80)
+    {
+      spiLCD_command(0x45, 0x00); //start of 1st line
+      lcd_character_count = 0;
+    }
+}
+
+void spiLCD_string(unsigned char* string)
+{
+  unsigned int i = 0;
+  
+  i = 0;
   while(string[i] != '\0') //loop though string until all characters written
   {
-     LATBbits.LATB5 = 0; //active low SS enabled
-     while(SPI1STATbits.SPITBF == 1);
-     SPI1BUF = string[i];
-     while(SPI1STATbits.SPIRBF == 0);
-     SPI_received_byte = SPI1BUF;
-     LATBbits.LATB5 = 1; //active low SS disabled
-     i++;
+    spiLCD_char(string[i]);
+    i++;
   }
 }
 
@@ -92,8 +125,8 @@ void spiLCD_init(void)
   TRISBbits.TRISB5 = 0; //SS output
   LATBbits.LATB5 = 1; //active low SS disabled
   SPI1CON1bits.MSTEN = 1; // Master mode
-  SPI1CON1bits.SMP = 1;
-  SPI1CON1bits.CKP = 1;
+  SPI1CON1bits.SMP = 1; //Input data is sampled at the end of data output time (don't think this matters since we are only sending data, not receiving)
+  SPI1CON1bits.CKP = 1; //Idle state for clock is a high level (required by LCD module)
   SPI1STATbits.SPIEN = 1; //enables SPI
 }
 
@@ -108,40 +141,3 @@ void delay100ms(void)
   }
 }
 
-void UARTtoLCD(volatile unsigned char key)
-{
-  while(U1STAbits.UTXBF);
-  U1TXREG = key;   
-  
-  if(key == 0x7F) //backspace key
-  {
-    spiLCD_command(0x4E, 0);
-  }
-  else
-  {
-    LATBbits.LATB5 = 0; //active low SS enabled
-    while(SPI1STATbits.SPITBF == 1);
-    SPI1BUF = key;
-    while(SPI1STATbits.SPIRBF == 0);
-    SPI_received_byte = SPI1BUF;
-    LATBbits.LATB5 = 1; //active low SS disabled
-  }
-}
-
-/*
-void __attribute__((__interrupt__, __auto_psv__)) _U1RXInterrupt(void)
-{
-  IFS0bits.U1RXIF = 0; //IFS0<11>IEC0<11>IPC2<14:12>
-  //while(U1STAbits.URXDA);
-  UART_received_byte = U1RXREG;
-  //bluetype(UART_received_byte);
-  //UART_TX(UART_received_byte);
-  UARTtoLCD(UART_received_byte);
-  LATBbits.LATB6 = ~LATBbits.LATB6;
-}
-
-void __attribute__((__interrupt__, __auto_psv__)) _U1TXInterrupt(void)
-{
-  IFS0bits.U1TXIF = 0; //IFS0<12>IEC0<12>IPC3<2:0>
-}
-*/
