@@ -1,0 +1,13 @@
+Reference, Quantity, Value, Footprint, Datasheet
+C2 ,1,"CP1","Capacitor_SMD:C_1206_3216Metric","~"
+C4 C3 C1 ,3,"C","Capacitor_SMD:C_0603_1608Metric","~"
+D1 D2 D3 D4 D5 D6 D7 ,7,"LED","LED_SMD:LED_0603_1608Metric","~"
+J1 J2 J3 J4 J5 J6 J7 ,7,"Conn_01x07","Connector_PinHeader_2.54mm:PinHeader_1x07_P2.54mm_Vertical","~"
+J10 ,1,"USB-PWR","Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical","~"
+J8 ,1,"FTDI","Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical_SMD_Pin1Right","~"
+J9 ,1,"PICkit3","Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical_SMD_Pin1Right","~"
+JP2 JP1 ,2,"Jumper_NO_Small","Jumper:SolderJumper-2_P1.3mm_Open_Pad1.0x1.5mm","~"
+R11 R12 R13 R14 R15 R8 R1 R9 R2 R10 R3 R4 R5 R6 R7 R16 ,16,"R_US","Resistor_SMD:R_0603_1608Metric","~"
+SW1 SW2 SW3 ,3,"SW_SPST","digikey-footprints:Switch_Tactile_SMD_6x6mm","~"
+SW4 ,1,"SW_DIP_x04","Button_Switch_SMD:SW_DIP_SPSTx04_Slide_9.78x12.34mm_W8.61mm_P2.54mm","~"
+U1 ,1,"dspic33ev256gm102","Package_SO:SSOP-28_5.3x10.2mm_P0.65mm",""
